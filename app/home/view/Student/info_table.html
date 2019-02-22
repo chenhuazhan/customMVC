@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        table{
+            border: 1px solid #000;
+        }
+        td{
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+<table>
+    {if isset($res['id'])}
+    <tr><td>id</td><td>name</td><td>age</td></tr>
+    <tr><td>{$res.id}</td><td>{$res.name}</td><td>{$res.age}</td></tr>
+    {/if}
+</table>
+
+</body>
+</html>

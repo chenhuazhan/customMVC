@@ -64,7 +64,7 @@
     ```
 3. 在面向对象的MVC中，因为模型是针对具体数据表，意味着每个模型都需要进行数据库的连接操作，这个时候通常会设计一层专门负责数据库初始化部分的（类似二次封装PDO，没有具体数据业务，只负责数据库底层操作），我们把这层叫做DAO（Data Access Object）数据访问对象
 
-![MVC设计思想](markdown_image\MVC设计思想.gif)
+![MVC设计思想](markdown_image/MVC思想/MVC设计思想.gif)
 
 
 > **总结**
@@ -92,210 +92,196 @@
 
 1. 区分业务设计控制器：根据业务相关性和相似性，将对应业务划分到一起，由一个控制器来实现，控制器设计成类，不同方法代表不同业务处理，如后台的注册、登录以及注销这块，都属于权限功能，可以划分到一起；控制器可以区分前后台（看系统需求是否需要区分），可以增加相应的命名空间；为了后期代码好维护，可以增加控制器后缀controller
 
-```PHP
-//后台权限控制器
-//命名空间
-namespace admin\controller;			//表明是后台代码，而且是控制器
-
-class PrivilegeController{
-    //一个方法实现一个小业务：一次请求完成用户一次需求
-    public function login(){
-        //可以是单独的获取登录表单，也可以在里面使用判定方式实现获取表单和完成登录两个功能
-        if(isset($_POST['username'])){
-            //用户有提交用户名：说明当前是要完成登录功能
-            //代码实现登录功能：调用模型
-        }else{
-            //没有提交表单：说明是用来获取登录表单
-            //加载登录视图（HTML）
+    ```PHP
+    //后台权限控制器
+    //命名空间
+    namespace admin\controller;			//表明是后台代码，而且是控制器
+    
+    class PrivilegeController{
+        //一个方法实现一个小业务：一次请求完成用户一次需求
+        public function login(){
+            //可以是单独的获取登录表单，也可以在里面使用判定方式实现获取表单和完成登录两个功能
+            if(isset($_POST['username'])){
+                //用户有提交用户名：说明当前是要完成登录功能
+                //代码实现登录功能：调用模型
+            }else{
+                //没有提交表单：说明是用来获取登录表单
+                //加载登录视图（HTML）
+            }
+        }
+        
+        //注册功能
+        public function register(){
+            //实现注册功能（注册和加载注册表单）
         }
     }
-    
-    //注册功能
-    public function register(){
-        //实现注册功能（注册和加载注册表单）
-    }
-}
-```
+    ```
 
 2. 区分数据增加模型：模型的设计通常是基于表的，即一张表会有一个对应的模型类，对应表的所有操作（增删改查）都会有当前模型类来实现，所有的SQL指令都是封装到当前模型中。与控制器一样，也应该增加相应的 命名空间，以及模型后缀model
 
-```PHP
-//后台管理员模型
-namespace admin\model;
-
-class AdminModel{
-    //模型针对表，所以通常会在模型中增加一个表名：因为所有方法都会涉及到SQL，便于以后维护
-    protected $table = 'admin';
+    ```PHP
+    //后台管理员模型
+    namespace admin\model;
     
-    //根据用户名获取用户信息
-    public function getUserinfoByUsername($username){
-        //组织SQL
-        $sql = "select * from {$this->table} where username = '{$username}'";
+    class AdminModel{
+        //模型针对表，所以通常会在模型中增加一个表名：因为所有方法都会涉及到SQL，便于以后维护
+        protected $table = 'admin';
         
-        //执行：通常调用DAO执行即可
+        //根据用户名获取用户信息
+        public function getUserinfoByUsername($username){
+            //组织SQL
+            $sql = "select * from {$this->table} where username = '{$username}'";
+            
+            //执行：通常调用DAO执行即可
+            
+            //返回数据执行结果
+            return $res;
+        }
         
-        //返回数据执行结果
-        return $res;
+        //获取所有用户信息
+        public function getAll(){
+            $sql = "select * from {$this->table}";
+            //调用DAO执行SQL并返回结果
+            return $users;
+        }
     }
-    
-    //获取所有用户信息
-    public function getAll(){
-        $sql = "select * from {$this->table}";
-        //调用DAO执行SQL并返回结果
-        return $users;
-    }
-}
-```
+    ```
 
 3. 选择合适视图：视图通常是前端提供好，后端人员要做的就是如何去在视图中增加对应的PHP输出指令，将数据放到合适的位置：假设当前获取的是用户的登录信息
 
-```php+HTML
-<html>
-    <header></header>
-    <body>
-        <table>
-            <tr><td>序号</td><td>用户名</td><td></td>上次登录时间</td></tr>
-    		<?php foreach($logininfo as $k => $info):?>
-    		<tr>
-                <td><?php echo $k+1;?></td>
-                <td><?php echo $info['username'];?></td>
-                <td><?php echo $info['login_time'];?></td>
-    		</tr>
-    		<?php endforeach;?>
-        </table>
-    </body>
-</html>
-```
+    ```php+HTML
+    <html>
+        <header></header>
+        <body>
+            <table>
+                <tr><td>序号</td><td>用户名</td><td></td>上次登录时间</td></tr>
+                <?php foreach($logininfo as $k => $info):?>
+                <tr>
+                    <td><?php echo $k+1;?></td>
+                    <td><?php echo $info['username'];?></td>
+                    <td><?php echo $info['login_time'];?></td>
+                </tr>
+                <?php endforeach;?>
+            </table>
+        </body>
+    </html>
+    ```
 
 4. 在实际开发项目中，会有很多控制器，每个控制器本质要做的事情都差不多，只是具体的业务逻辑不一样。此时就会出现很多类似的功能，如操作成功、失败、页面找不到等等，此时如果在所有控制器中都去写对应的方法，那么肯定是有资源浪费的，此时就可以从这些控制器中抽离一部分公共代码出来，形成父类，从而实现代码的复用
 
-```PHP
-//父类控制器：通常在核心中
-namespace core;
-
-class Controller{
-    //公共代码
-    public function __construct(){
-        //控制器的初始化操作
-    }
-    protected function success(){
-        //成功操作
-    }
+    ```PHP
+    //父类控制器：通常在核心中
+    namespace core;
     
-    protected function error(){
-        //失败操作
+    class Controller{
+        //公共代码
+        public function __construct(){
+            //控制器的初始化操作
+        }
+        protected function success(){
+            //成功操作
+        }
+        
+        protected function error(){
+            //失败操作
+        }
+        
+        //......
     }
+    ```
+
+    ```PHP
+    //子类控制器继承父类控制器
+    namespace admin\controller;
+    use \Core\Controller;				//引入父类
     
-    //......
-}
-```
-
-```PHP
-//子类控制器继承父类控制器
-namespace admin\controller;
-use \Core\Controller;				//引入父类
-
-class IndexController extends Controller{
-    //业务方法
-    public function index(){
-        //调用父类公共方法
-        $this->success();
+    class IndexController extends Controller{
+        //业务方法
+        public function index(){
+            //调用父类公共方法
+            $this->success();
+        }
     }
-}
-```
+    ```
 
 5. 同样的，模型是针对一张表一个模型，而每个模型都需要利用DAO来实现数据库的底层操作，以二次封装的PDO为例，所有的模型类都需要在构造方法中实现PDO的实例化，而且还会有很多公共的功能，如查询全部、通过ID进行查询等常用方法，此时也可以将模型的公共部分抽离出来，形成父类，而其他模型类只需要继承该类即可
 
-```PHP
-//父类公共模型
-namespace core;
+    ```PHP
+    //父类公共模型
+    namespace core;
+    
+    class Model{
+        //实现DAO的初始化：通常使用构造方法，因为所有模型子类继承该类都会先调用构造方法
+        public function __construct(){
+           //实现DAO类的初始化，完成数据库初始化操作：通常是用对象保存得到的DAO对象 
+           $this->dao = new DAO();		//假定操作
+        }
+        
+        //获取所有数据
+        public function getAll(){
+            $sql = "select * from {$this->table}";	//子类模型中有受保护的属性$table，父类也可以调用（最终是子类调用该方法）
+            //执行完成，返回结果即可
+            return $rows;
+        }
+    }
+    ```
 
-class Model{
-    //实现DAO的初始化：通常使用构造方法，因为所有模型子类继承该类都会先调用构造方法
-    public function __construct(){
-       //实现DAO类的初始化，完成数据库初始化操作：通常是用对象保存得到的DAO对象 
-       $this->dao = new DAO();		//假定操作
+    ```PHP
+    //子类模型继承父类
+    namespace admin\model;
+    use \Core\Model;
+    
+    class UserModel extends Model{
+        //表名属性
+        protected $table = 'user';
     }
     
-    //获取所有数据
-    public function getAll(){
-        $sql = "select * from {$this->table}";	//子类模型中有受保护的属性$table，父类也可以调用（最终是子类调用该方法）
-        //执行完成，返回结果即可
-        return $rows;
-    }
-}
-```
-
-```PHP
-//子类模型继承父类
-namespace admin\model;
-use \Core\Model;
-
-class UserModel extends Model{
-    //表名属性
-    protected $table = 'user';
-}
-
-//当前类没有自己的构造方法，意味着实例化UserModel的时候会调用继承自Model类的构造方法，从而实现DAO的实例化，也就是说实例化的UserModel对象，可以直接调用父类的getAll方法来实现数据库的操作
-```
-
-
+    //当前类没有自己的构造方法，意味着实例化UserModel的时候会调用继承自Model类的构造方法，从而实现DAO的实例化，也就是说实例化的UserModel对象，可以直接调用父类的getAll方法来实现数据库的操作
+    ```
 
 > **总结**
 
 1. MVC思想的指导思路
 
-* 区分业务：确定是共用还是单独创建控制器
-* 区分数据：确定是属于控制器还是应该创建模型
+    - 区分业务：确定是共用还是单独创建控制器
+    - 区分数据：确定是属于控制器还是应该创建模型
 
 2. MVC思想中，会存在很多重复的内容，此时就需要我们进行抽象化
 
-* 公共控制器代码：父类控制器
-* 公共模型代码：父类模型
-
-
+    - 公共控制器代码：父类控制器
+    - 公共模型代码：父类模型
 
 ***
 
-
-
-> **思考**：按照MVC思想设计的项目，所有的请求都是请求C控制器，此时用户浏览器发来的请求就不会请求其他任何PHP文件了，对吗？
-
 > **引入**：因为MVC思想规定，所有的请求都是用控制器来处理，因此用户的任何请求，都会是由控制器来进行处理。而其他的文件，如模型和视图文件，也都是通过控制器来直接或者间接调用的，我们把这种设计思路称之为`单一入口`，但是其实本质在进入控制器之前，还有好多初始化的操作需要实现，因此我们在MVC实现的基础上，规定其他文件的访问方式，这就是`项目单一入口`
 
-
-
-## **4. 项目单一入口【掌握】**
-
-
+## **4. 项目单一入口**
 
 > **定义**：单一入口，是指一类业务会统一请求一个对应的控制器，所有的请求都是由控制器来处理；项目单一入口是指，所有的请求都只请求一个入口文件，其他的所有代码的调用执行，都是由该入口文件来管理。
 
 1. 项目单一入口是指在基于MVC设计情况下，在进入MVC之前，由一个统一的入口文件来进行管理，所有的用户（浏览器）请求都只允许访问入口文件
 
-```sequence
-浏览器->服务器:发起请求
-服务器->入口文件\nindex.php:统一由入口文件处理\n通常是index.php
-note right of 入口文件\nindex.php:入口文件开始\n分发控制器
-入口文件\nindex.php-->控制器:
-控制器-->模型:调用
-note right of 模型:完成数据库操作
-模型-->控制器:返回数据
-控制器-->视图:加载
-note right of 视图:完成数据渲染
-视图-->控制器:返回渲染数据
-控制器-->入口文件\nindex.php:返回MVC处理结果
-入口文件\nindex.php->服务器:PHP处理结果交给服务器
-服务器->浏览器:服务器返回执行结果
-note left of 浏览器:浏览器\n完成解析
-```
+    ```sequence
+    浏览器->服务器:发起请求
+    服务器->入口文件\nindex.php:统一由入口文件处理\n通常是index.php
+    note right of 入口文件\nindex.php:入口文件开始\n分发控制器
+    入口文件\nindex.php-->控制器:
+    控制器-->模型:调用
+    note right of 模型:完成数据库操作
+    模型-->控制器:返回数据
+    控制器-->视图:加载
+    note right of 视图:完成数据渲染
+    视图-->控制器:返回渲染数据
+    控制器-->入口文件\nindex.php:返回MVC处理结果
+    入口文件\nindex.php->服务器:PHP处理结果交给服务器
+    服务器->浏览器:服务器返回执行结果
+    note left of 浏览器:浏览器\n完成解析
+    ```
 
 2. 在真实项目单一入口中，入口文件通常会很简单，为了入口的可操作性，会将不同的内容分散到不同的文件中。一个简单的项目单一入口文件，也会将入口文件中的初始化部分，分离到另外一个文件中（初始化类）
 
-* 入口文件index.php：加载初始化类，激活初始化类
-* 初始化类：实现各类初始化（路径常量、系统设置、配置文件加载、路由功能、自动加载、控制器分发）
-
-
+    - 入口文件index.php：加载初始化类，激活初始化类
+    - 初始化类：实现各类初始化（路径常量、系统设置、配置文件加载、路由功能、自动加载、控制器分发）
 
 > **总结**
 
