@@ -1,0 +1,14 @@
+## 网站目录设计：
+- public：公共资源目录（网站访问根目录），包括入口文件，静态资源
+- app：应用目录，存放MVC代码
+    + admin：后台代码
+        * controller：业务控制器，处理网络请求，带admin\controller命名空间
+        * moder：业务模型，处理数据，带admin\model命名空间
+        * view：视图模板
+    + home：前台代码
+        * controller：业务控制器，带home\controller命名空间
+        * moder：业务模型，带home\model命名空间
+        * view：视图模板
+ - config：配置目录，存放配置文件
+ - core：核心目录，存放核心文件，如初始化文件，公共控制器，公共模型，带core命名空间
+ - vendor：第三方应用目录，如smarty
